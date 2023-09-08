@@ -1,0 +1,17 @@
+export type Department =
+	| 'produce'
+	| 'deli'
+	| 'bakery'
+	| 'meat'
+	| 'dairy'
+	| 'dry'
+	| 'canned'
+	| 'frozen'
+	| 'alcohol'
+	| 'beauty'
+	| 'paper'
+	| 'cleaning'
+	| 'home'
+	| 'office'
+	| 'unknown'
+	;

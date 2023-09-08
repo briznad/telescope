@@ -1,15 +1,15 @@
 import type { Writable, Readable } from 'svelte/store';
 
-import type { List } from '$types/list';
+import type { Company } from '$types/company';
 
 import { writable, derived } from 'svelte/store';
 
 import { firestore } from '$services/firestore';
 
 
-class ListsStore {
-	public recent : Writable<List[]>;
-	public all    : Writable<List[]>;
+class CompaniesStore {
+	public recent : Writable<Company[]>;
+	public all    : Writable<Company[]>;
 
 
 	constructor() {
@@ -18,12 +18,12 @@ class ListsStore {
 	}
 
 
-	private initRecent() : Writable<List[]> {
+	private initRecent() : Writable<Company[]> {
 		return writable(
 			[],
 			(set : (value : any) => void) => {
-				const unsubscribe = firestore.getListsReactive(
-					(lists : List[]) => set(lists),
+				const unsubscribe = firestore.getCompaniesReactive(
+					(companies : Company[]) => set(companies),
 					5,
 				);
 
@@ -32,12 +32,12 @@ class ListsStore {
 		);
 	}
 
-	private initAll() : Writable<List[]> {
+	private initAll() : Writable<Company[]> {
 		return writable(
 			[],
 			(set : (value : any) => void) => {
-				const unsubscribe = firestore.getListsReactive(
-					(lists : List[]) => set(lists),
+				const unsubscribe = firestore.getCompaniesReactive(
+					(companies : Company[]) => set(companies),
 				);
 
 				return () => unsubscribe();
@@ -46,4 +46,4 @@ class ListsStore {
 	}
 }
 
-export const lists = new ListsStore();
+export const companies = new CompaniesStore();

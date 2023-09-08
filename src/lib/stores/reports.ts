@@ -1,15 +1,15 @@
 import type { Writable } from 'svelte/store';
 
-import type { Recipe } from '$types/recipe';
+import type { Report } from '$types/report';
 
 import { writable } from 'svelte/store';
 
 import { firestore } from '$services/firestore';
 
 
-class Recipes {
-	public recent : Writable<Recipe[]>;
-	public all    : Writable<Recipe[]>;
+class Reports {
+	public recent : Writable<Report[]>;
+	public all    : Writable<Report[]>;
 
 
 	constructor() {
@@ -18,12 +18,12 @@ class Recipes {
 	}
 
 
-	private initRecent() : Writable<Recipe[]> {
+	private initRecent() : Writable<Report[]> {
 		return writable(
 			[],
 			(set : (value : any) => void) => {
-				const unsubscribe = firestore.getRecipesReactive(
-					(recipes : Recipe[]) => set(recipes),
+				const unsubscribe = firestore.getReportsReactive(
+					(reports : Report[]) => set(reports),
 					5,
 				);
 
@@ -32,12 +32,12 @@ class Recipes {
 		);
 	}
 
-	private initAll() : Writable<Recipe[]> {
+	private initAll() : Writable<Report[]> {
 		return writable(
 			[],
 			(set : (value : any) => void) => {
-				const unsubscribe = firestore.getRecipesReactive(
-					(recipes : Recipe[]) => set(recipes),
+				const unsubscribe = firestore.getReportsReactive(
+					(reports : Report[]) => set(reports),
 				);
 
 				return () => unsubscribe();
@@ -46,4 +46,4 @@ class Recipes {
 	}
 }
 
-export const recipes = new Recipes();
+export const reports = new Reports();

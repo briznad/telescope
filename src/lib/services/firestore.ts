@@ -2,7 +2,7 @@ import type { Firestore as FirestoreType, CollectionReference, DocumentData, Que
 
 import type { User } from '$types/user';
 import type { Company } from '$types/company';
-import type { Data } from '$types/data';
+import type { Report } from '$types/report';
 
 import { getFirestore, doc, runTransaction, collection, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 
@@ -81,17 +81,17 @@ class Firestore {
 		return returnedUser;
 	}
 
-	private getCollectionName(type : 'company' | 'data') : 'companies' | 'data' {
+	private getCollectionName(type : 'company' | 'report') : 'companies' | 'reports' {
 		return type === 'company'
 			? 'companies'
-			: 'data';
+			: 'reports';
 	}
 
 	getCompany(id : string) : Promise<Company | null> {
-		return this.getCompanyOrData('company', id);
+		return this.getCompanyOrReport('company', id);
 	}
 
-	private async getCompanyOrData(type : 'company' | 'data', id : string) : Promise<Company | Data | null> {
+	private async getCompanyOrReport(type : 'company' | 'report', id : string) : Promise<Company | Report | null> {
 		const docRef = doc(this.db, this.getCollectionName(type), id);
 
 		let docSnapshot : DocumentSnapshot;
@@ -105,52 +105,52 @@ class Firestore {
 		}
 
 		if (docSnapshot.exists()) {
-			return docSnapshot.data() as Company | Data;
+			return docSnapshot.data() as Company | Report;
 		} else {
 			// no item exists with the provided id
 			return null;
 		}
 	}
 
-	getData(id : string) : Promise<Data | null> {
-		return this.getCompanyOrData('data', id);
+	getData(id : string) : Promise<Report | null> {
+		return this.getCompanyOrReport('report', id);
 	}
 
-	getCompanyReactive(id : string, callback : (data : null | Company) => void) : Unsubscribe {
-		return this.getCompanyOrDataReactive('company', id, callback);
+	getCompanyReactive(id : string, callback : (company : null | Company) => void) : Unsubscribe {
+		return this.getCompanyOrReportReactive('company', id, callback);
 	}
 
-	private getCompanyOrDataReactive(type : 'company' | 'data', id : string, callback : (data : null | Company | Data) => void) : Unsubscribe {
+	private getCompanyOrReportReactive(type : 'company' | 'report', id : string, callback : (data : null | Company | Report) => void) : Unsubscribe {
 		const docRef = doc(this.db, this.getCollectionName(type), id);
 
 		return onSnapshot(docRef, (docSnapshot : DocumentSnapshot) : void => {
-			const doc : null | Company | Data = docSnapshot.exists()
-				? docSnapshot.data() as Company | Data
+			const doc : null | Company | Report = docSnapshot.exists()
+				? docSnapshot.data() as Company | Report
 				: null;
 
 			callback(doc);
 		});
 	}
 
-	getDataReactive(id : string, callback : (data : null | Data) => void) : Unsubscribe {
-		return this.getCompanyOrDataReactive('data', id, callback);
+	getReportReactive(id : string, callback : (report : null | Report) => void) : Unsubscribe {
+		return this.getCompanyOrReportReactive('report', id, callback);
 	}
 
 	// getCompanies(limitDocuments? : number, sortByUpdated = true) : Promise<Company[]> {
-	// 	return this.getCompaniesOrDatas('company', limitDocuments, sortByUpdated);
+	// 	return this.getCompaniesOrReports('company', limitDocuments, sortByUpdated);
 	// }
 
-	// private async getCompaniesOrDatas(type : 'company' | 'data', limitDocuments? : number, sortByUpdated = true) : Promise<Company[] | Data[]> {
-	// 	const querySnapshot = await getDocs(this.getCompaniesOrDatasQuery(type, limitDocuments, sortByUpdated));
+	// private async getCompaniesOrReports(type : 'company' | 'report', limitDocuments? : number, sortByUpdated = true) : Promise<Company[] | Report[]> {
+	// 	const querySnapshot = await getDocs(this.getCompaniesOrReportsQuery(type, limitDocuments, sortByUpdated));
 
-	// 	return this.getCompaniesOrDatasFromSnapshot(querySnapshot);
+	// 	return this.getCompaniesOrReportsFromSnapshot(querySnapshot);
 	// }
 
 	// getDatas(limitDocuments? : number, sortByUpdated = true) : Promise<Data[]> {
-	// 	return this.getCompaniesOrDatas('data', limitDocuments, sortByUpdated);
+	// 	return this.getCompaniesOrReports('report', limitDocuments, sortByUpdated);
 	// }
 
-	private getCompaniesOrDatasQuery(type : 'company' | 'data', limitDocuments? : number, sortByUpdated = true) : QueryOrCollectionRef {
+	private getCompaniesOrReportsQuery(type : 'company' | 'report', limitDocuments? : number, sortByUpdated = true) : QueryOrCollectionRef {
 		let queryRef : QueryOrCollectionRef = collection(this.db, this.getCollectionName(type));
 
 		if (sortByUpdated && limitDocuments != null) {
@@ -170,41 +170,41 @@ class Firestore {
 		return queryRef;
 	}
 
-	private getCompaniesOrDatasFromSnapshot(querySnapshot : QuerySnapshot<DocumentData, DocumentData>) : Company[] | Data[] {
+	private getCompaniesOrReportsFromSnapshot(querySnapshot : QuerySnapshot<DocumentData, DocumentData>) : Company[] | Report[] {
 		const docs : any[] = querySnapshot.docs;
 
-		const items : Company[] | Data[] = docs
+		const items : Company[] | Report[] = docs
 			.map((doc) => doc.data());
 
 		return items;
 	}
 
 	getCompaniesReactive(callback : (companies : Company[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
-		return this.getCompaniesOrDatasReactive('company', callback, limitDocuments, sortByUpdated);
+		return this.getCompaniesOrReportsReactive('company', callback, limitDocuments, sortByUpdated);
 	}
 
-	private getCompaniesOrDatasReactive(type : 'company' | 'data', callback : (items : Company[] | Data[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
-		const q = this.getCompaniesOrDatasQuery(type, limitDocuments, sortByUpdated);
+	private getCompaniesOrReportsReactive(type : 'company' | 'report', callback : (items : Company[] | Report[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
+		const q = this.getCompaniesOrReportsQuery(type, limitDocuments, sortByUpdated);
 
 		return onSnapshot(q, (querySnapshot : QuerySnapshot<DocumentData, DocumentData>) => {
-			const items : Company[] | Data[] = this.getCompaniesOrDatasFromSnapshot(querySnapshot);
+			const items : Company[] | Report[] = this.getCompaniesOrReportsFromSnapshot(querySnapshot);
 
 			callback(items);
 		});
 	}
 
-	getDatasReactive(callback : (datas : Data[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
-		return this.getCompaniesOrDatasReactive('data', callback, limitDocuments, sortByUpdated);
+	getReportsReactive(callback : (reports : Report[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
+		return this.getCompaniesOrReportsReactive('report', callback, limitDocuments, sortByUpdated);
 	}
 
-	async createCompanyOrData(type : 'company' | 'data', userId : string, title : string) : Promise<Company | Data | null> {
+	async createCompanyOrReport(type : 'company' | 'report', userId : string, title : string) : Promise<Company | Report | null> {
 		const id = createId('lowercase', 8);
 
 		const timestamp = new Date().toISOString();
 
 		const docRef = doc(this.db, this.getCollectionName(type), id);
 
-		const item : Company | Data = {
+		const item : Company | Report = {
 			id,
 			title,
 			createdAt : timestamp,
@@ -224,7 +224,7 @@ class Firestore {
 		return item;
 	}
 
-	async updateCompanyOrData(type : 'company' | 'data', id : string, userId : string, updates : Partial<Company | Data>) : Promise<boolean> {
+	async updateCompanyOrReport(type : 'company' | 'report', id : string, userId : string, updates : Partial<Company | Report>) : Promise<boolean> {
 		const docRef = doc(this.db, this.getCollectionName(type), id);
 
 		const updatePayload = {
@@ -244,7 +244,7 @@ class Firestore {
 		return true;
 	}
 
-	// async addItem(type : 'company' | 'data', docId : string, userId : string, originalInput : string) : Promise<boolean> {
+	// async addItem(type : 'company' | 'report', docId : string, userId : string, originalInput : string) : Promise<boolean> {
 	// 	const docRef    = doc(this.db, this.getCollectionName(type), docId);
 	// 	const timestamp = new Date().toISOString();
 	// 	const id        = createId('lowercase', 8);
@@ -281,7 +281,7 @@ class Firestore {
 	// 	return true;
 	// }
 
-	// async updateItem(type : 'company' | 'data', docId : string, itemId : string, userId : string, updates : Partial<Item>) : Promise<boolean> {
+	// async updateItem(type : 'company' | 'report', docId : string, itemId : string, userId : string, updates : Partial<Item>) : Promise<boolean> {
 	// 	const docRef = doc(this.db, this.getCollectionName(type), docId);
 
 	// 	try {

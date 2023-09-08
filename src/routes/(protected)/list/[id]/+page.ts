@@ -1,10 +1,10 @@
 import type { PageLoad } from './$types';
 
-import { list } from '$stores/list';
+import { company } from '$stores/company';
 
 
 export const load : PageLoad = ({ params }) => {
-	list.id.set(params.id ?? '');
+	company.id.set(params.id ?? '');
 
   return {};
 };

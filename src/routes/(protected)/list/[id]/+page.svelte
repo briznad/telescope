@@ -2,14 +2,14 @@
 	lang="ts"
 	context="module"
 >
-	import { list } from '$stores/list';
+	import { company } from '$stores/company';
 
 	import ChunkyLabel from '$components/ChunkyLabel.svelte';
 </script>
 
 
 <script lang="ts">
-	const { currentList } = list;
+	const { currentCompany } = company;
 </script>
 
 
@@ -20,10 +20,10 @@
 </style>
 
 
-<ChunkyLabel>Shopping List</ChunkyLabel>
+<ChunkyLabel>Shopping Company</ChunkyLabel>
 
-{#if $currentList }
-	<h1>{ $currentList?.title }</h1>
+{#if $currentCompany }
+	<h1>{ $currentCompany?.title }</h1>
 {:else}
 	<h2>Uh oh! Item can't be loaded right now.</h2>
 {/if}

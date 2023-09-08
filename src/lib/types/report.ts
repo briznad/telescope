@@ -1,7 +1,7 @@
 import type { DBItem } from '$types/db-item';
 
 
-export interface Data extends DBItem {
+export interface Report extends DBItem {
 	revenue?                 : DollarTerm;
 	cashBurn?                : DollarTerm;
 	grossProfit?             : DollarTerm;

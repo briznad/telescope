@@ -4,15 +4,15 @@
 >
 	import { HEK } from '$utilities/helper';
 
-	import { Companies } from '$stores/Companies';
+	import { companies } from '$stores/companies';
 
-	import { Datas } from '$stores/Datas';
+	import { reports } from '$stores/reports';
 </script>
 
 
 <script lang="ts">
-	const recentCompanies   = Companies.recent;
-	const recentDatas = Datas.recent;
+	const recentCompanies = companies.recent;
+	const recentReports   = reports.recent;
 </script>
 
 
@@ -31,12 +31,12 @@
 	{/each}
 </ul>
 
-<h2>Recent Data</h2>
+<h2>Recent Report</h2>
 
 <ul>
-	{#each $recentDatas as recipe }
+	{#each $recentReports as report }
 		<li>
-			<a href="/recipe/{ recipe.id }">{ recipe.title }</a>
+			<a href="/report/{ report.id }">{ report.title }</a>
 		</li>
 	{/each}
 </ul>

@@ -2,24 +2,24 @@
 	lang="ts"
 	context="module"
 >
-	import { list as listStore } from '$stores/list';
+	import { company as companyStore } from '$stores/company';
 </script>
 
 
 <script lang="ts">
-	const { all } = listStore;
+	const { all } = companyStore;
 </script>
 
 
 <style lang="scss"></style>
 
 
-<h1>All Shopping Lists</h1>
+<h1>All Shopping Companies</h1>
 
 <ul>
-	{#each $all as list, index }
+	{#each $all as company, index }
 		<li>
-			<a href="/list/{ list.id }">{ list.title }</a>
+			<a href="/company/{ company.id }">{ company.title }</a>
 		</li>
 	{/each}
 </ul>

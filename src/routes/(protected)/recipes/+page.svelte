@@ -2,24 +2,24 @@
 	lang="ts"
 	context="module"
 >
-	import { recipes } from '$stores/recipes';
+	import { reports } from '$stores/reports';
 </script>
 
 
 <script lang="ts">
-	const { all } = recipes;
+	const { all } = reports;
 </script>
 
 
 <style lang="scss"></style>
 
 
-<h1>All Recipes</h1>
+<h1>All Reports</h1>
 
 <ul>
-	{#each $all as recipe, index }
+	{#each $all as report, index }
 		<li>
-			<a href="/recipe/{ recipe.id }">{ recipe.title }</a>
+			<a href="/report/{ report.id }">{ report.title }</a>
 		</li>
 	{/each}
 </ul>

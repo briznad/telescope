@@ -53,7 +53,7 @@
 		},
 		{
 			link      : '/data/new',
-			title     : 'Add Data',
+			title     : 'Add Report',
 			icon      : documentText,
 			matchPath : /^\/data\//,
 		},

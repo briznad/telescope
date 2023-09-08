@@ -2,12 +2,12 @@
 	lang="ts"
 	context="module"
 >
-	import { recipe } from '$stores/recipe';
+	import { report } from '$stores/report';
 
 	import ChunkyLabel from '$components/ChunkyLabel.svelte';
 	import MainInfo from '$components/MainInfo.svelte';
-	import RecipeOptionsBar from '$components/RecipeOptionsBar.svelte';
-	import RecipeItemReorderGroup from '$components/RecipeItemReorderGroup.svelte';
+	import ReportOptionsBar from '$components/ReportOptionsBar.svelte';
+	import ReportItemReorderGroup from '$components/ReportItemReorderGroup.svelte';
 	import NewItem from '$components/NewItem.svelte';
 </script>
 
@@ -16,14 +16,14 @@
 	const {
 		id,
 		info,
-	} = recipe;
+	} = report;
 </script>
 
 
 <style lang="scss"></style>
 
 
-<ChunkyLabel>Recipe</ChunkyLabel>
+<ChunkyLabel>Report</ChunkyLabel>
 
 {#if $info.title }
 	<MainInfo
@@ -31,16 +31,16 @@
 		description={ $info.description }
 	/>
 
-	<RecipeOptionsBar />
+	<ReportOptionsBar />
 
-	<ion-list>
-		<RecipeItemReorderGroup />
+	<ion-company>
+		<ReportItemReorderGroup />
 
 		<NewItem
-			type="recipe"
+			type="report"
 			id={ $id }
 		/>
-	</ion-list>
+	</ion-company>
 {:else}
-	<h2>Uh oh! Recipe can't be loaded right now.</h2>
+	<h2>Uh oh! Report can't be loaded right now.</h2>
 {/if}

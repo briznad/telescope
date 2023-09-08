@@ -4,47 +4,39 @@
 >
 	import { HEK } from '$utilities/helper';
 
-	import { lists } from '$stores/lists';
+	import { Companies } from '$stores/Companies';
 
-	import { recipes } from '$stores/recipes';
-
-	import NewListOrRecipeModal from '$components/NewListOrRecipeModal.svelte';
+	import { Datas } from '$stores/Datas';
 </script>
 
 
 <script lang="ts">
-	const recentLists   = lists.recent;
-	const recentRecipes = recipes.recent;
+	const recentCompanies   = Companies.recent;
+	const recentDatas = Datas.recent;
 </script>
 
 
 <style lang="scss"></style>
 
 
-<h2>Recent Shopping Lists</h2>
+<h1>My Telescope</h1>
+
+<h2>Recent Companies</h2>
 
 <ul>
-	{#each $recentLists as list }
+	{#each $recentCompanies as Company }
 		<li>
-			<a href="/list/{ list.id }">{ list.title }</a>
+			<a href="/Company/{ Company.id }">{ Company.title }</a>
 		</li>
 	{/each}
 </ul>
 
-<NewListOrRecipeModal
-	type="list"
-/>
-
-<h2>Recent Recipes</h2>
+<h2>Recent Data</h2>
 
 <ul>
-	{#each $recentRecipes as recipe }
+	{#each $recentDatas as recipe }
 		<li>
 			<a href="/recipe/{ recipe.id }">{ recipe.title }</a>
 		</li>
 	{/each}
 </ul>
-
-<NewListOrRecipeModal
-	type="recipe"
-/>

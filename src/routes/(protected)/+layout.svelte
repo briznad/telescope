@@ -14,7 +14,7 @@
 
 	import { HEK } from '$utilities/helper';
 
-	import { basketOutline, homeOutline, fastFoodOutline } from 'ionicons/icons';
+	import { business, documentText, home } from 'ionicons/icons';
 </script>
 
 
@@ -40,22 +40,22 @@
 
 	const tabs = [
 		{
-			link      : '/lists',
-			title     : 'Shopping Lists',
-			icon      : basketOutline,
-			matchPath : /^\/list(?:s$|\/)/,
+			link      : '/company/new',
+			title     : 'Add Company',
+			icon      : business,
+			matchPath : /^\/compan(?:ies|y\/)/,
 		},
 		{
 			link      : '/homepage',
-			title     : 'Home',
-			icon      : homeOutline,
+			title     : 'My Telescope',
+			icon      : home,
 			matchPath : /^\/homepage$/,
 		},
 		{
-			link      : '/recipes',
-			title     : 'Recipes',
-			icon      : fastFoodOutline,
-			matchPath : /^\/recipe(?:s$|\/)/,
+			link      : '/data/new',
+			title     : 'Add Data',
+			icon      : documentText,
+			matchPath : /^\/data\//,
 		},
 	];
 </script>

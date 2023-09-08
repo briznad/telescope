@@ -28,9 +28,10 @@
 <style lang="scss">
 	:global(body) {
 		background:
-			linear-gradient(102.92deg, #FF4752 -27.24%, rgba(233, 87, 63, 0) 64.2%),
+			linear-gradient(102.92deg, #45aeeb -27.24%, rgba(233, 87, 63, 0) 64.2%),
 			linear-gradient(245.06deg, rgba(255, 255, 255, 0) -14.36%, rgba(255, 255, 255, 0.67) 7.21%, #FFFFFF 32.05%, rgba(255, 255, 255, 0.85) 81.07%, rgba(255, 255, 255, 0) 111.14%),
-			linear-gradient(231.11deg, #E9573F 8.23%, #FFCE54 75.59%) !important;
+			linear-gradient(231.11deg, #45aeeb 8.23%, #45aeeb 75.59%)
+			!important;
 		background-blend-mode: overlay, normal, normal;
 	}
 
@@ -61,15 +62,16 @@
 		font-size: 16px;
 	}
 
-	ul {
-		padding-inline-start: 1.5em;
-	}
-
 	.button-container {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
+		margin-top: 16px;
+
+		ion-button {
+			flex-basis: 100%;
+		}
 	}
 </style>
 
@@ -77,23 +79,15 @@
 <main>
 	<ion-card>
 		<ion-card-header>
-			<ion-card-title>Cartmigo</ion-card-title>
+			<ion-card-title>Telescope</ion-card-title>
 
-			<ion-card-subtitle>Your Culinary Companion</ion-card-subtitle>
+			<ion-card-subtitle>Company Data Ingester</ion-card-subtitle>
 		</ion-card-header>
 
 		<ion-card-content>
 			<p>
-				Cartmigo is a digital toolbox to save you time and hassle when planning meals, grocery shopping, and cooking. It can…
+				Telescope is an app, database, and API that facilitates the inputting of company data, which is often exchanged in an unstructured format, into a structured system, allowing it to be used in data modelling.
 			</p>
-
-			<ul>
-				<li>Organize your shopping lists to save time at the grocery store.</li>
-				<li>Keep track of your favorite recipes.</li>
-				<li>Share shopping lists with kitchen collaborators.</li>
-				<li>Scale recipes up or down for different occasions or to match what you have on hand.</li>
-				<li>Convert measurement units from what's in a recipe to what's on the box or measuring device.</li>
-			</ul>
 
 			<div class="button-container">
 				{#if $user }

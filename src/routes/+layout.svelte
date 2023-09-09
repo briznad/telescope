@@ -60,7 +60,15 @@
 </script>
 
 
-<style lang="scss"></style>
+<style lang="scss">
+	:global(h1) {
+		font-weight: 700;
+	}
+
+	:global(h2) {
+		font-weight: 600;
+	}
+</style>
 
 
 <ion-app>

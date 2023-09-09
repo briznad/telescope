@@ -27,17 +27,27 @@ class Authentication {
 
 		this.authInstance = getAuth(firebase.app);
 
-		onAuthStateChanged(this.authInstance, this.upsertUser);
+		onAuthStateChanged(this.authInstance, this.upsertUser.bind(this));
 	}
 
-	async upsertUser(providedUser? : any) : Promise<void> {
+	async upsertUser(providedUser? : any) : Promise<boolean | string> {
 		let assembledUser : User | null = null;
 
-		if (providedUser) {
-			assembledUser = await firestore.upsertUser(providedUser);
+		try {
+			this.verifyEmail({ user : providedUser });
+
+			if (providedUser) {
+				assembledUser = await firestore.upsertUser(providedUser);
+			}
+		} catch (error) {
+			console.error('Something went wrong when attempting to authenticate', error);
+
+			return (error as any)?.code ?? false;
 		}
 
 		user.set(assembledUser);
+
+		return assembledUser != null;
 	}
 
 	async continueWithGoogle() : Promise<boolean> {
@@ -48,9 +58,11 @@ class Authentication {
 		const provider = new GoogleAuthProvider();
 
 		try {
-			await signInWithPopup(this.authInstance, provider);
+			this.verifyEmail(await signInWithPopup(this.authInstance, provider));
 		} catch (error) {
 			console.error('Something went wrong when attempting to authenticate with Google', error);
+
+			await this.logout();
 
 			return false;
 		}
@@ -60,17 +72,34 @@ class Authentication {
 		return true;
 	}
 
-	async signInWithEmailAndPassword(email : string, password : string) : Promise<boolean> {
+	private verifyEmail(response : any) : any {
+		const email : string = response?.user?.email ?? '';
+
+		if (email) {
+			const domain : string = email.split('@')[1];
+
+			if (email === 'brad.mallow@gmail.com' || ['base10.vc', 'paineventures.com'].includes(domain)) {
+				return response;
+			}
+		}
+
+		throw {
+			code    : 'auth/unauthorized',
+			message : 'User attempted to sign in with an unauthorized email address',
+		};
+	}
+
+	async signInWithEmailAndPassword(email : string, password : string) : Promise<boolean | string> {
 		if (!this.authInstance) {
 			this.init();
 		}
 
 		try {
-			await signInWithEmailAndPassword(this.authInstance, email, password);
+			this.verifyEmail(await signInWithEmailAndPassword(this.authInstance, email, password));
 		} catch (error) {
 			console.error('Something went wrong when attempting to sign in with email and password', error);
 
-			return false;
+			return (error as any)?.code ?? false;
 		}
 
 		console.info('Sign in was successful');

@@ -23,7 +23,7 @@
 	let userUnsubscribe = () => {};
 
 	async function authenticationCheck() {
-		await sleep(500);
+		await sleep(2000);
 
 		userUnsubscribe = user.subscribe(async (value) => {
 			if (value === null) {
@@ -40,10 +40,10 @@
 
 	const tabs = [
 		{
-			link      : '/company/new',
-			title     : 'Add Company',
+			link      : '/companies',
+			title     : 'Companies',
 			icon      : business,
-			matchPath : /^\/compan(?:ies|y\/)/,
+			matchPath : /^\/compan(?:ies$|y\/)/,
 		},
 		{
 			link      : '/homepage',
@@ -52,10 +52,10 @@
 			matchPath : /^\/homepage$/,
 		},
 		{
-			link      : '/data/new',
-			title     : 'Add Report',
+			link      : '/reports',
+			title     : 'Reports',
 			icon      : documentText,
-			matchPath : /^\/data\//,
+			matchPath : /^\/report(?:s$|\/)/,
 		},
 	];
 </script>
@@ -65,11 +65,7 @@
 
 
 <ion-tabs>
-	<ion-content fullscreen={ true }>
-		<main class="ion-padding">
-			<slot />
-		</main>
-	</ion-content>
+	<slot />
 
   <ion-tab-bar slot="bottom">
 		{#each tabs as tab }

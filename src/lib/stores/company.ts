@@ -1,4 +1,4 @@
-import type { Writable, Readable } from 'svelte/store';
+import type { Writable, Readable, Unsubscriber } from 'svelte/store';
 
 import type { Company } from '$types/company';
 
@@ -8,13 +8,13 @@ import { firestore } from '$services/firestore';
 
 
 class CompanyStore {
-	public id     : Writable<string>;
+	public id : Writable<string>;
 
 	public currentCompany : Readable<null | Company>;
 
 
 	constructor() {
-		this.id          = writable('');
+		this.id             = writable('');
 		this.currentCompany = this.initCurrentCompany();
 	}
 
@@ -25,17 +25,15 @@ class CompanyStore {
 			(
 				$id : string,
 				set : (value : any) => void,
-			) : void => {
-				this.setCurrentCompany($id, set);
+			) : Unsubscriber => {
+				const unsubscribe = firestore.getCompanyReactive($id, (company : null | Company) => {
+					set(company);
+				});
+
+				return () => unsubscribe();
 			},
 			null,
 		);
-	}
-
-	private async setCurrentCompany(id : string, set : (value : any) => void) : Promise<void> {
-		const company = await firestore.getCompany(id);
-
-		set(company);
 	}
 }
 

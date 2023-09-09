@@ -1,18 +1,23 @@
-import type { Writable } from 'svelte/store';
+import type { Writable, Readable, Unsubscriber } from 'svelte/store';
 
 import type { Report } from '$types/report';
 
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
+
+import { Query } from 'briznads-helpers';
 
 import { firestore } from '$services/firestore';
 
 
 class Reports {
+	public query  : Writable<string>;
 	public recent : Writable<Report[]>;
-	public all    : Writable<Report[]>;
+
+	public all : Readable<Report[]>;
 
 
 	constructor() {
+		this.query  = writable('');
 		this.recent = this.initRecent();
 		this.all    = this.initAll();
 	}
@@ -24,7 +29,7 @@ class Reports {
 			(set : (value : any) => void) => {
 				const unsubscribe = firestore.getReportsReactive(
 					(reports : Report[]) => set(reports),
-					5,
+					4,
 				);
 
 				return () => unsubscribe();
@@ -32,16 +37,20 @@ class Reports {
 		);
 	}
 
-	private initAll() : Writable<Report[]> {
-		return writable(
-			[],
-			(set : (value : any) => void) => {
+	private initAll() : Readable<Report[]> {
+		return derived(
+			this.query,
+			(
+				$query : string,
+				set    : (value : any) => void,
+			) : Unsubscriber => {
 				const unsubscribe = firestore.getReportsReactive(
-					(reports : Report[]) => set(reports),
+					(reports : Report[]) => set(Query.matchObject(reports, $query, 'companyName')),
 				);
 
 				return () => unsubscribe();
 			},
+			[],
 		);
 	}
 }

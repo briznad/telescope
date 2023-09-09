@@ -27,23 +27,29 @@
 		input[ name ] = value;
 	}
 
+	let toastErrorMessage : string | undefined;
+
 	async function handleSubmit(event : any) : Promise<void> {
 		event.preventDefault();
 
 		const result = await authentication.signInWithEmailAndPassword(input.email, input.password);
 
-		if (result) {
+		if (result === true) {
 			goto('/homepage');
+
+			return;
 		}
+
+		toastErrorMessage = 'Something went wrong. Please try again.';
 	}
 </script>
 
 
 <style lang="scss">
-	ion-item {
-		--padding-start: 0;
-		--inner-padding-end: 0;
-	}
+	// ion-item {
+	// 	--padding-start: 0;
+	// 	--inner-padding-end: 0;
+	// }
 </style>
 
 
@@ -62,14 +68,18 @@
 			</ion-button>
 		</ion-buttons>
 
-		<ion-title>Back Button</ion-title>
+		<ion-title>Login</ion-title>
 	</ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-	<h1>Continue with Email/Password</h1>
+<ion-content>
+	<ion-item lines="none">
+		<h1>Continue with Email/Password</h1>
+	</ion-item>
 
-	<p>Use the back button to navigate to the previous page.</p>
+	<ion-item lines="none">
+		<p>Enter the credentials provided by your friendly Telescope admin, or refer to the placeholder text for a helpful hint.</p>
+	</ion-item>
 
 	<form
 		on:submit={ handleSubmit }
@@ -118,3 +128,11 @@
 		</ion-item>
 	</form>
 </ion-content>
+
+<ion-toast
+	is-open={ toastErrorMessage != undefined }
+	message={ toastErrorMessage }
+	color="danger"
+	duration={ 5000 }
+	on:didDismiss={ () => toastErrorMessage = undefined }
+></ion-toast>

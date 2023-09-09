@@ -15,18 +15,24 @@
 
 
 <script lang="ts">
+	let toastErrorMessage : string | undefined;
+
 	async function continueWithGoogle() : Promise<void> {
 		const result = await authentication.continueWithGoogle();
 
-		if (result) {
+		if (result === true) {
 			goto('/homepage');
+
+			return;
 		}
+
+		toastErrorMessage = 'Something went wrong. Please try again.';
 	}
 </script>
 
 
 <style lang="scss">
-	:global(body) {
+	main {
 		background:
 			linear-gradient(102.92deg, #45aeeb -27.24%, rgba(233, 87, 63, 0) 64.2%),
 			linear-gradient(245.06deg, rgba(255, 255, 255, 0) -14.36%, rgba(255, 255, 255, 0.67) 7.21%, #FFFFFF 32.05%, rgba(255, 255, 255, 0.85) 81.07%, rgba(255, 255, 255, 0) 111.14%),
@@ -132,3 +138,11 @@
 		</ion-card-content>
 	</ion-card>
 </main>
+
+<ion-toast
+	is-open={ toastErrorMessage != undefined }
+	message={ toastErrorMessage }
+	color="danger"
+	duration={ 5000 }
+	on:didDismiss={ () => toastErrorMessage = undefined }
+></ion-toast>

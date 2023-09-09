@@ -3,16 +3,16 @@ import type { DBItem } from '$types/db-item';
 
 export interface Company extends DBItem {
 	name                : string;
-	industry?           : Industry;
+	industry?           : Industry[];
 	otherIndustry?      : string;
-	businessModels?     : BusinessModel[];
+	businessModel?      : BusinessModel[];
 	otherBusinessModel? : string;
 	hqLocation?         : string;
 	founderQuality?     : FounderQuality;
-	feautureSet?        : string[];
+	featureSet?         : string[];
 }
 
-type Industry =
+export type Industry =
 	| 'technology'
 	| 'healthcare'
 	| 'financial services'
@@ -26,7 +26,7 @@ type Industry =
 	| 'other'
 	;
 
-type BusinessModel =
+export type BusinessModel =
 	| 'product'
 	| 'retail'
 	| 'wholesale'
@@ -39,18 +39,15 @@ type BusinessModel =
 	| 'other'
 	;
 
-interface FounderQuality extends FounderQualityMap {
+export interface FounderQuality extends FounderQualityMap {
 	aggregateScore? : number;
 }
 
 type FounderQualityMap = {
-	[ key in FounderQualityType ]? : {
-		score? : number;
-		notes? : string;
-	};
+	[ key in FounderQualityType ]? : number;
 }
 
-type FounderQualityType =
+export type FounderQualityType =
 	| 'track record'
 	| 'industry expertise'
 	| 'leadership ability'

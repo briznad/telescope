@@ -6,7 +6,7 @@ import type { Report } from '$types/report';
 
 import { getFirestore, doc, runTransaction, collection, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 
-import { createId } from 'briznads-helpers';
+import { createId, deepCopy } from 'briznads-helpers';
 
 import { firebase } from '$services/firebase';
 
@@ -55,7 +55,7 @@ class Firestore {
 				}
 
 				if (docSnapshot.exists()) {
-					transaction.update(docRef, partialData);
+					transaction.update(docRef, deepCopy(partialData));
 
 					returnedUser = {
 						...docSnapshot.data(),
@@ -69,7 +69,7 @@ class Firestore {
 						createdBy : id,
 					};
 
-					transaction.set(docRef, partialData);
+					transaction.set(docRef, deepCopy(partialData));
 
 					returnedUser = partialData;
 				}
@@ -89,6 +89,10 @@ class Firestore {
 
 	getCompany(id : string) : Promise<Company | null> {
 		return this.getCompanyOrReport('company', id);
+	}
+
+	getReport(id : string) : Promise<Report | null> {
+		return this.getCompanyOrReport('report', id);
 	}
 
 	private async getCompanyOrReport(type : 'company' | 'report', id : string) : Promise<Company | Report | null> {
@@ -112,12 +116,12 @@ class Firestore {
 		}
 	}
 
-	getData(id : string) : Promise<Report | null> {
-		return this.getCompanyOrReport('report', id);
-	}
-
 	getCompanyReactive(id : string, callback : (company : null | Company) => void) : Unsubscribe {
 		return this.getCompanyOrReportReactive('company', id, callback);
+	}
+
+	getReportReactive(id : string, callback : (report : null | Report) => void) : Unsubscribe {
+		return this.getCompanyOrReportReactive('report', id, callback);
 	}
 
 	private getCompanyOrReportReactive(type : 'company' | 'report', id : string, callback : (data : null | Company | Report) => void) : Unsubscribe {
@@ -132,10 +136,6 @@ class Firestore {
 		});
 	}
 
-	getReportReactive(id : string, callback : (report : null | Report) => void) : Unsubscribe {
-		return this.getCompanyOrReportReactive('report', id, callback);
-	}
-
 	// getCompanies(limitDocuments? : number, sortByUpdated = true) : Promise<Company[]> {
 	// 	return this.getCompaniesOrReports('company', limitDocuments, sortByUpdated);
 	// }
@@ -146,7 +146,7 @@ class Firestore {
 	// 	return this.getCompaniesOrReportsFromSnapshot(querySnapshot);
 	// }
 
-	// getDatas(limitDocuments? : number, sortByUpdated = true) : Promise<Data[]> {
+	// getReports(limitDocuments? : number, sortByUpdated = true) : Promise<Report[]> {
 	// 	return this.getCompaniesOrReports('report', limitDocuments, sortByUpdated);
 	// }
 
@@ -183,6 +183,10 @@ class Firestore {
 		return this.getCompaniesOrReportsReactive('company', callback, limitDocuments, sortByUpdated);
 	}
 
+	getReportsReactive(callback : (reports : Report[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
+		return this.getCompaniesOrReportsReactive('report', callback, limitDocuments, sortByUpdated);
+	}
+
 	private getCompaniesOrReportsReactive(type : 'company' | 'report', callback : (items : Company[] | Report[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
 		const q = this.getCompaniesOrReportsQuery(type, limitDocuments, sortByUpdated);
 
@@ -193,11 +197,15 @@ class Firestore {
 		});
 	}
 
-	getReportsReactive(callback : (reports : Report[]) => void, limitDocuments? : number, sortByUpdated = true) : Unsubscribe {
-		return this.getCompaniesOrReportsReactive('report', callback, limitDocuments, sortByUpdated);
+	createCompany(userId : string, payload : Partial<Company>) : Promise<Company | null> {
+		return this.createCompanyOrReport('company', userId, payload);
 	}
 
-	async createCompanyOrReport(type : 'company' | 'report', userId : string, title : string) : Promise<Company | Report | null> {
+	createReport(userId : string, payload : Partial<Report>) : Promise<Report | null> {
+		return this.createCompanyOrReport('report', userId, payload);
+	}
+
+	async createCompanyOrReport(type : 'company' | 'report', userId : string, payload : Partial<Company | Report>) : Promise<Company | Report | null> {
 		const id = createId('lowercase', 8);
 
 		const timestamp = new Date().toISOString();
@@ -205,8 +213,8 @@ class Firestore {
 		const docRef = doc(this.db, this.getCollectionName(type), id);
 
 		const item : Company | Report = {
+			...payload,
 			id,
-			title,
 			createdAt : timestamp,
 			createdBy : userId,
 			updatedAt : timestamp,
@@ -214,7 +222,7 @@ class Firestore {
 		};
 
 		try {
-			await setDoc(docRef, item);
+			await setDoc(docRef, deepCopy(item));
 		} catch (error) {
 			console.error(`Something went wrong when attempting to create ${ type }`, error);
 
@@ -222,6 +230,10 @@ class Firestore {
 		}
 
 		return item;
+	}
+
+	updateCompany(id : string, userId : string, payload : Partial<Company>) : Promise<Company | null> {
+		return this.updateCompanyOrReport('company', id, userId, payload);
 	}
 
 	async updateCompanyOrReport(type : 'company' | 'report', id : string, userId : string, updates : Partial<Company | Report>) : Promise<boolean> {
@@ -234,7 +246,7 @@ class Firestore {
 		};
 
 		try {
-			await updateDoc(docRef, updatePayload);
+			await updateDoc(docRef, deepCopy(updatePayload));
 		} catch (error) {
 			console.error(`Something went wrong when attempting to update ${ type } with id ${ id }`, error);
 
@@ -243,86 +255,6 @@ class Firestore {
 
 		return true;
 	}
-
-	// async addItem(type : 'company' | 'report', docId : string, userId : string, originalInput : string) : Promise<boolean> {
-	// 	const docRef    = doc(this.db, this.getCollectionName(type), docId);
-	// 	const timestamp = new Date().toISOString();
-	// 	const id        = createId('lowercase', 8);
-
-	// 	const item : Item = {
-	// 		originalInput,
-	// 		createdAt : timestamp,
-	// 		createdBy : userId,
-	// 		id,
-	// 		updatedAt : timestamp,
-	// 		updatedBy : userId,
-	// 		// DEV: replace with parsed real values
-	// 		quantity        : 1,
-	// 		measurement     : 'gram',
-	// 		measurementType : 'weight',
-	// 		description     : originalInput,
-	// 		department      : 'unknown',
-	// 	};
-
-	// 	const updatePayload = {
-	// 		[ 'itemMap.' + id ] : item,
-	// 		updatedAt         : timestamp,
-	// 		updatedBy         : userId,
-	// 	};
-
-	// 	try {
-	// 		await updateDoc(docRef, updatePayload);
-	// 	} catch (error) {
-	// 		console.error(`Something went wrong when attempting to add item to ${ type }`, error);
-
-	// 		return false;
-	// 	}
-
-	// 	return true;
-	// }
-
-	// async updateItem(type : 'company' | 'report', docId : string, itemId : string, userId : string, updates : Partial<Item>) : Promise<boolean> {
-	// 	const docRef = doc(this.db, this.getCollectionName(type), docId);
-
-	// 	try {
-	// 		await runTransaction(this.db, async (transaction) => {
-	// 			const doc = await transaction.get(docRef);
-
-	// 			if (!doc.exists()) {
-	// 				throw `${ type } does not exist!`;
-	// 			}
-
-	// 			const existingItem : Item = doc.data()?.itemMap?.[ itemId ];
-
-	// 			if (existingItem === undefined) {
-	// 				throw 'item does not exist!';
-	// 			}
-
-	// 			const timestamp = new Date().toISOString();
-
-	// 			const item : Item = {
-	// 				...existingItem,
-	// 				...updates,
-	// 				updatedAt : timestamp,
-	// 				updatedBy : userId,
-	// 			};
-
-	// 			const updatePayload = {
-	// 				[ 'itemMap.' + itemId ] : item,
-	// 				updatedAt               : timestamp,
-	// 				updatedBy               : userId,
-	// 			};
-
-	// 			transaction.update(docRef, updatePayload);
-	// 		});
-	// 	} catch (error) {
-	// 		console.error(`something went wrong when attempting to update ${ type } item`, error);
-
-	// 		return false;
-	// 	}
-
-	// 	return true;
-	// }
 }
 
 export const firestore = new Firestore();

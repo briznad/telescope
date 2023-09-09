@@ -65,18 +65,18 @@
 <script lang="ts">
 	const {
 		id,
-		currentCompany,
+		current,
 	} = company;
 
 	let companyInput : Partial<Company> = {};
 
 	function reset(company? : Company | null) : void {
 		companyInput = {
-			...(company ?? $currentCompany),
+			...(company ?? $current),
 		};
 	}
 
-	$: reset($currentCompany);
+	$: reset($current);
 
 	function handleTextInput(event : any) {
 		const name  : 'name' | 'hqLocation' | 'otherIndustry' | 'otherBusinessModel' = event.target?.name;
@@ -118,7 +118,7 @@
 
 		await firestore.updateCompany($id, $user?.id ?? '', companyInput);
 
-		goto('/company/' + $currentCompany?.id);
+		goto('/company/' + $current?.id);
 
 		saveClicked = false;
 	}
@@ -202,7 +202,7 @@
 	}
 </style>
 
-{#if $currentCompany }
+{#if $current }
 	<ion-header translucent={ true }>
 		<ion-toolbar>
 			<ion-buttons
@@ -216,7 +216,7 @@
 				>Cancel</ion-button>
 			</ion-buttons>
 
-			<ion-title>{ $currentCompany.name }</ion-title>
+			<ion-title>{ $current.name }</ion-title>
 
 			<ion-buttons
 				slot="end"
@@ -234,10 +234,10 @@
 {/if}
 
 <ion-content fullscreen={ true }>
-	{#if $currentCompany }
+	{#if $current }
 		<ion-header collapse="condense">
 			<ion-toolbar>
-				<ion-title size="large">{ $currentCompany.name }</ion-title>
+				<ion-title size="large">{ $current.name }</ion-title>
 
 				<ion-buttons
 					slot="end"

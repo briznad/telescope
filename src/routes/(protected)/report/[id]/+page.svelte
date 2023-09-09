@@ -2,31 +2,49 @@
 	lang="ts"
 	context="module"
 >
-	import { company } from '$stores/company';
+	import type { Report } from '$types/report';
+
+	import { objectEntries, parseDate } from 'briznads-helpers';
+
+	import { report } from '$stores/report';
+
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
+	import CreatedOrUpdated from '$components/CreatedOrUpdated.svelte';
+	import DollarDisplayItem from '$components/DollarDisplayItem.svelte';
+
+
+	const fieldMap : { [ key : string ] : string } = {
+		revenue                 : 'Revenue',
+		cashBurn                : 'Cash Burn',
+		grossProfit             : 'Gross Profit',
+		grossProfitPercentage   : 'Gross Profit Percentage',
+		EBIDTA                  : 'EBIDTA',
+		cashOnHand              : 'Cash On Hand',
+		customerAcquisitionCost : 'Customer Acquisition Cost',
+		lifetimeValue           : 'Lifetime Value',
+		averageRevenuePerUser   : 'Average Revenue Per User',
+		customerCount           : 'Customer Count',
+		nextFundraise					  : 'Next Fundraise',
+	};
 </script>
 
 
 <script lang="ts">
 	const {
 		id,
-		currentCompany,
-	} = company;
-
-	function stringifyList(list? : string[], additonalItem? : string) : string {
-		const parsedList = list ?? [];
-
-		if (additonalItem) {
-			parsedList.push(additonalItem);
-		}
-
-		return parsedList.join(', ');
-	}
+		current,
+	} = report;
 </script>
 
 
 <style lang="scss">
 	ion-content {
 		--padding-bottom: 60px;
+	}
+
+	.id-container {
+		--min-height: auto;
+		--padding-bottom: 10px;
 	}
 
 	h2 {
@@ -36,22 +54,10 @@
 </style>
 
 
-{#if $currentCompany }
+{#if $current }
 	<ion-header translucent={ true }>
 		<ion-toolbar>
-			<ion-buttons
-				slot="start"
-				collapse={ true }
-			>
-				<ion-button
-					color="dark"
-					href="{ window.location.pathname }/edit"
-				>
-					Edit
-				</ion-button>
-			</ion-buttons>
-
-			<ion-title>{ $currentCompany.name }</ion-title>
+			<ion-title>{ $current.companyName }</ion-title>
 
 			<ion-buttons
 				slot="end"
@@ -59,7 +65,7 @@
 			>
 				<ion-button
 					fill="solid"
-					href="/report/new?cid={ $id }"
+					href="/report/new?cid={ $current.companyId }"
 				>
 					Add Report
 				</ion-button>
@@ -69,26 +75,18 @@
 {/if}
 
 <ion-content fullscreen={ true }>
-	{#if $currentCompany }
+	{#if $current }
 		<ion-header collapse="condense">
 			<ion-toolbar>
-				<ion-title size="large">{ $currentCompany.name }</ion-title>
+				<ion-title size="large">{ $current.companyName }</ion-title>
 
 				<ion-buttons
 					slot="end"
 					collapse={ true }
 				>
 					<ion-button
-						size="small"
-						color="dark"
-						href="{ window.location.pathname }/edit"
-					>
-						Edit
-					</ion-button>
-
-					<ion-button
 						fill="solid"
-						href="/report/new?cid={ $id }"
+						href="/report/new?cid={ $current.companyId }"
 					>
 						Add Report
 					</ion-button>
@@ -96,64 +94,45 @@
 			</ion-toolbar>
 		</ion-header>
 
+		<ion-item
+			class="id-container"
+			lines="full"
+		>
+			<ChunkyLabel>{ $current.companyId }</ChunkyLabel>
+		</ion-item>
+
 		<ion-list>
-			{#if 'hqLocation' in $currentCompany }
-				<ion-item>
-					<ion-label>
-						<p>Location</p>
+			<ion-item>
+				<ion-label>
+					<p><CreatedOrUpdated createdAt={ $current.createdAt } updatedAt={ $current.updatedAt } /></p>
+				</ion-label>
+			</ion-item>
 
-						<h2>{ $currentCompany.hqLocation }</h2>
-					</ion-label>
-				</ion-item>
-			{/if}
+			{#each objectEntries(fieldMap) as [ key, title ] }
+				{ @const value = $current[ key ] }
 
-			{#if ($currentCompany.industry ?? []).length > 0 }
-				<ion-item>
-					<ion-label>
-						<p>Industry</p>
+				{#if value != undefined }
+					{#if key === 'nextFundraise' }
+						<ion-item>
+							<ion-label>
+								<p>{ title }</p>
 
-						<h2>{ stringifyList($currentCompany.industry, $currentCompany.otherIndustry) }</h2>
-					</ion-label>
-				</ion-item>
-			{/if}
-
-			{#if ($currentCompany.businessModel ?? []).length > 0 }
-				<ion-item>
-					<ion-label>
-						<p>Business Model</p>
-
-						<h2>{ stringifyList($currentCompany.businessModel, $currentCompany.otherBusinessModel) }</h2>
-					</ion-label>
-				</ion-item>
-			{/if}
-
-			{#if ($currentCompany.featureSet ?? []).length > 0 }
-				<ion-item>
-					<ion-label>
-						<p>Feature Set</p>
-
-						{#each $currentCompany.featureSet ?? [] as feature }
-							<h2>{ feature }</h2>
-						{/each}
-					</ion-label>
-				</ion-item>
-			{/if}
-
-			{#if 'founderQuality' in $currentCompany }
-				<ion-item>
-					<ion-label>
-						<p>Founder Quality</p>
-
-						<h2 class="aggregate-score">aggregate score: { $currentCompany.founderQuality?.aggregateScore ?? 0 }</h2>
-
-						{#each Object.entries($currentCompany.founderQuality ?? {}) as [ key, value ] }
-							{#if key !== 'aggregateScore' }
-								<h3>{ key }: { value }</h3>
-							{/if}
-						{/each}
-					</ion-label>
-				</ion-item>
-			{/if}
+								<h2>{ parseDate(value).toLocaleString(undefined, { month : 'short', year : '2-digit' }) }</h2>
+							</ion-label>
+						</ion-item>
+					{:else if typeof value === 'object' }
+						<DollarDisplayItem
+							{ title }
+							{ ...value }
+						/>
+					{:else}
+						<DollarDisplayItem
+							{ title }
+							{ value}
+						/>
+					{/if}
+				{/if}
+			{/each}
 		</ion-list>
 	{:else}
 		<ion-item>

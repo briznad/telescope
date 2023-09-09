@@ -10,16 +10,16 @@ import { firestore } from '$services/firestore';
 class CompanyStore {
 	public id : Writable<string>;
 
-	public currentCompany : Readable<null | Company>;
+	public current : Readable<null | Company>;
 
 
 	constructor() {
-		this.id             = writable('');
-		this.currentCompany = this.initCurrentCompany();
+		this.id      = writable('');
+		this.current = this.initCurrent();
 	}
 
 
-	private initCurrentCompany() : Readable<null | Company> {
+	private initCurrent() : Readable<null | Company> {
 		return derived(
 			this.id,
 			(

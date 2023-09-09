@@ -150,11 +150,15 @@ class Firestore {
 	// 	return this.getCompaniesOrReports('report', limitDocuments, sortByUpdated);
 	// }
 
-	private getCompaniesOrReportsQuery(type : 'company' | 'report', limitDocuments? : number, sortByUpdated = true) : QueryOrCollectionRef {
+	private getCompaniesOrReportsQuery(type : 'company' | 'report', limitDocuments? : number, sortByUpdated = true, byCompanyId? : string) : QueryOrCollectionRef {
 		let queryRef : QueryOrCollectionRef = collection(this.db, this.getCollectionName(type));
 
-		if (sortByUpdated && limitDocuments != null) {
+		if (limitDocuments != null || sortByUpdated || byCompanyId) {
 			const queryParameters : any[] = [];
+
+			if (byCompanyId) {
+				queryParameters.push(where('companyId', '==', byCompanyId));
+			}
 
 			if (sortByUpdated) {
 				queryParameters.push(orderBy('updatedAt', 'desc'));
@@ -254,6 +258,16 @@ class Firestore {
 		}
 
 		return true;
+	}
+
+	getLatestCompanyReportReactive(id : string, callback : (item : Report) => void) : Unsubscribe {
+		const q = this.getCompaniesOrReportsQuery('report', 1, true, id);
+
+		return onSnapshot(q, (querySnapshot : QuerySnapshot<DocumentData, DocumentData>) => {
+			const items : Report[] = this.getCompaniesOrReportsFromSnapshot(querySnapshot);
+
+			callback((items ?? [])[0] ?? null);
+		});
 	}
 }
 

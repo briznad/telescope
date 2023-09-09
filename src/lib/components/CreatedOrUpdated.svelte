@@ -7,14 +7,13 @@
 
 
 <script lang="ts">
-	export let createdAt : string;
-	export let updatedAt : string;
+	export let createdAt   : string;
+	export let updatedAt   : string;
 
 	$: isUpdated = createdAt !== updatedAt;
 
-	$: dateObject = isUpdated
-		? parseDate(updatedAt)
-		: parseDate(createdAt);
+	$: dateObject = parseDate(isUpdated ? updatedAt : createdAt);
+
 </script>
 
 

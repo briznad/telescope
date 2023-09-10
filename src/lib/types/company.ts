@@ -1,7 +1,7 @@
-import type { DBItem } from '$types/db-item';
+import type { CompanyOrReport } from '$types/company-or-report';
 
 
-export interface Company extends DBItem {
+export interface Company extends CompanyOrReport {
 	name                : string;
 	industry?           : Industry[];
 	otherIndustry?      : string;
@@ -40,7 +40,8 @@ export type BusinessModel =
 	;
 
 export interface FounderQuality extends FounderQualityMap {
-	aggregateScore? : number;
+	aggregateScore?            : number;
+	optionalCompletenessScore? : number;
 }
 
 type FounderQualityMap = {

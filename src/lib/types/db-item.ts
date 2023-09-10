@@ -1,4 +1,4 @@
-export interface DBItem {
+export type DBItem = {
 	createdAt  : string;
 	createdBy  : string;
 	deletedAt? : string;

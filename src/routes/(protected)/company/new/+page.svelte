@@ -2,11 +2,13 @@
 	lang="ts"
 	context="module"
 >
+	import type { BooleanMap } from 'briznads-helpers';
+
 	import type { Company, Industry, BusinessModel, FounderQualityType } from '$types/company';
 
 	import { informationCircleOutline, add } from 'ionicons/icons';
 
-	import { objectEntries } from 'briznads-helpers';
+	import { objectEntries, roundToDecimals } from 'briznads-helpers';
 
 	import { goto } from '$app/navigation';
 
@@ -17,24 +19,7 @@
 	import { user } from '$stores/user';
 
 	import ChunkyLabel from '$components/ChunkyLabel.svelte';
-
-
-	type TextInput = {
-		name                : string;
-		hqLocation?         : string;
-		otherIndustry?      : string;
-		otherBusinessModel? : string;
-	};
-
-	type ListInput = {
-		industry?      : Industry[];
-		businessModel? : BusinessModel[];
-		featureSet?    : string[];
-	};
-
-	type FounderQualityInput = {
-		[ key in FounderQualityType ]? : number;
-	};
+    import { company } from '$stores/company';
 
 
 	const industryOptions : Industry[] = [
@@ -75,23 +60,53 @@
 		'coachability'         : 'Are they open to feedback and self-improvement to evolve as a leader?',
 		'past exits'           : 'Have they successfully built and exited companies in the past?',
 	};
+
+	const optionalPropertiesMap : BooleanMap = {
+		industry           : true,
+		otherIndustry      : true,
+		businessModel      : true,
+		otherBusinessModel : true,
+		hqLocation         : true,
+		founderQuality     : true,
+		featureSet         : true,
+	};
 </script>
 
 
 <script lang="ts">
-	let textInput : TextInput = {
-		name : '',
-	};
+	let companyInput : Partial<Company> = {};
 
-	let listInput : ListInput = {};
+	function parseCompletenessScore(companyInput : Partial<Company>) : void {
+		const optionalFilledCount : number = objectEntries(companyInput)
+			.filter(([ key, value ]) => {
+				if (!optionalPropertiesMap[ key ]) {
+					return false;
+				}
 
-	let founderQualityInput : FounderQualityInput = {};
+				if (typeof value !== 'object') {
+					return isValidValue(value);
+				}
+
+				return Array.isArray(value)
+					? value.length > 0
+					: value?.optionalCompletenessScore ?? 0 > 0;
+			})
+			.length;
+
+		companyInput.optionalCompletenessScore = roundToDecimals(optionalFilledCount / Object.keys(optionalPropertiesMap).length, 5);
+	}
+
+	$ : parseCompletenessScore(companyInput);
+
+	function isValidValue(value : any) : boolean {
+		return !!value || value === 0;
+	}
 
 	function handleTextInput(event : any) {
 		const name  : 'name' | 'hqLocation' | 'otherIndustry' | 'otherBusinessModel' = event.target?.name;
 		const value : string = event.detail?.value;
 
-		textInput[ name ] = value;
+		companyInput[ name ] = value;
 	}
 
 	function handleListChange(event : any) {
@@ -99,11 +114,11 @@
 		const value : Industry[] | BusinessModel[] | string[] = event.detail?.value;
 
 		if (name === 'industry') {
-			listInput[ name ] = value as Industry[];
+			companyInput[ name ] = value as Industry[];
 		} else if (name === 'businessModel') {
-			listInput[ name ] = value as BusinessModel[];
+			companyInput[ name ] = value as BusinessModel[];
 		} else {
-			listInput[ name ] = value as string[];
+			companyInput[ name ] = value as string[];
 		}
 	}
 
@@ -111,7 +126,38 @@
 		const name  : FounderQualityType = event.target?.name;
 		const value : number = event.detail?.value;
 
-		founderQualityInput[ name ] = value;
+		if (!companyInput.founderQuality) {
+			companyInput.founderQuality = {};
+		}
+
+		companyInput.founderQuality[ name ] = value;
+
+		parseAggregateAndOptionalFounderScore();
+	}
+
+	function parseAggregateAndOptionalFounderScore() : void {
+		const optionalFilledList : number[] = objectEntries(companyInput?.founderQuality ?? {})
+			.filter(([ key, value ]) => {
+				if ([ 'aggregateScore', 'optionalCompletenessScore' ].includes(key)) {
+					return false;
+				}
+
+				return isValidValue(value);
+			})
+			.map(([ key, value ]) => value as any);
+
+		if (!optionalFilledList.length) {
+			return;
+		}
+
+		const aggregateScore = optionalFilledList.reduce((sum, item) => sum + item, 0);
+		const optionalCompletenessScore = roundToDecimals(optionalFilledList.length / Object.keys(founderQualityOptionsMap).length, 5);
+
+		companyInput.founderQuality = {
+			...companyInput.founderQuality,
+			aggregateScore,
+			optionalCompletenessScore,
+		};
 	}
 
 	let saveClicked : boolean;
@@ -119,19 +165,7 @@
 	async function save() : Promise<void> {
 		saveClicked = true;
 
-		const payload : Partial<Company> = {
-			...textInput,
-			...listInput,
-		};
-
-		if (Object.keys(founderQualityInput).length > 0) {
-			payload.founderQuality = {
-				...founderQualityInput,
-				aggregateScore : parseAggregateFounderScore(founderQualityInput),
-			};
-		}
-
-		const item = await firestore.createCompany($user?.id ?? '', payload);
+		const item = await firestore.createCompany($user?.id ?? '', companyInput);
 
 		if (item?.id) {
 			initActionSheet(item.id);
@@ -165,22 +199,11 @@
 	}
 
 	function reset() : void {
-		textInput = {
-			name : '',
-		};
-
-		listInput = {};
-
-		founderQualityInput = {};
+		companyInput = {};
 	}
 
 	function parseId(key : string) : string {
 		return key.replace(/\s/g, '_');
-	}
-
-	function parseAggregateFounderScore(founderQualityInput : FounderQualityInput) : number {
-		return Object.values(founderQualityInput)
-			.reduce((sum, item) => sum + item, 0);
 	}
 
 	let newItemInputElement : HTMLIonInputElement;
@@ -192,7 +215,7 @@
 			return;
 		}
 
-		listInput.featureSet = [ ...(listInput.featureSet ?? []), message ];
+		companyInput.featureSet = [ ...(companyInput.featureSet ?? []), message ];
 
 		newItemInputElement.value = undefined;
 	}
@@ -201,12 +224,12 @@
 		const message = event.detail?.value;
 
 		if (message) {
-			(listInput.featureSet ?? [])[ index ] = message;
+			(companyInput.featureSet ?? [])[ index ] = message;
 		} else {
-			(listInput.featureSet ?? []).splice(index, 1);
+			(companyInput.featureSet ?? []).splice(index, 1);
 		}
 
-		listInput.featureSet = listInput.featureSet;
+		companyInput.featureSet = companyInput.featureSet;
 	}
 
 	let actionSheetElement : HTMLIonActionSheetElement;
@@ -214,6 +237,12 @@
 
 
 <style lang="scss">
+	.fixed-header {
+		ion-progress-bar {
+			opacity: var(--opacity-scale);
+		}
+	}
+
 	ion-content {
 		--padding-bottom: 60px;
 	}
@@ -254,7 +283,10 @@
 </style>
 
 
-<ion-header translucent={ true }>
+<ion-header
+	class="fixed-header"
+	translucent={ true }
+>
   <ion-toolbar>
     <ion-title>New Company</ion-title>
 
@@ -264,11 +296,13 @@
 		>
       <ion-button
 				strong={ true }
-				disabled={ saveClicked || !textInput.name }
+				disabled={ saveClicked || !companyInput.name }
 				on:click={ save }
 				on:keydown={ (e) => HEK(e, save) }
 			>Save</ion-button>
     </ion-buttons>
+
+		<ion-progress-bar value={ companyInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -283,11 +317,13 @@
 			>
         <ion-button
 					strong={ true }
-					disabled={ saveClicked || !textInput.name }
+					disabled={ saveClicked || !companyInput.name }
 					on:click={ save }
 					on:keydown={ (e) => HEK(e, save) }
 				>Save</ion-button>
       </ion-buttons>
+
+			<ion-progress-bar value={ companyInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
     </ion-toolbar>
   </ion-header>
 
@@ -304,7 +340,7 @@
 				type="text"
 				placeholder="enter text"
 				required={ true }
-				value={ textInput.name }
+				value={ companyInput.name }
 				on:ionInput={ handleTextInput }
 			></ion-input>
 		</ion-item>
@@ -316,7 +352,7 @@
 				label-placement="stacked"
 				type="text"
 				placeholder="enter text"
-				value={ textInput.hqLocation }
+				value={ companyInput.hqLocation }
 				on:ionInput={ handleTextInput }
 			></ion-input>
 		</ion-item>
@@ -333,7 +369,7 @@
 				aria-label="Industry(s)"
 				placeholder="select one or more"
 				multiple={ true }
-				value={ listInput.industry }
+				value={ companyInput.industry }
 				on:ionChange={ handleListChange }
 			>
 				{#each industryOptions as option }
@@ -342,7 +378,7 @@
 			</ion-select>
 		</ion-item>
 
-		{#if listInput.industry?.includes('other') }
+		{#if companyInput.industry?.includes('other') }
 			<ion-item>
 				<ion-input
 					label="Other Industry"
@@ -350,7 +386,7 @@
 					label-placement="stacked"
 					type="text"
 					placeholder="enter text"
-					value={ textInput.otherIndustry }
+					value={ companyInput.otherIndustry }
 					on:ionInput={ handleTextInput }
 				></ion-input>
 			</ion-item>
@@ -368,7 +404,7 @@
 				aria-label="Business Model(s)"
 				placeholder="select one or more"
 				multiple={ true }
-				value={ listInput.businessModel }
+				value={ companyInput.businessModel }
 				on:ionChange={ handleListChange }
 			>
 				{#each businessModelOptions as option }
@@ -377,7 +413,7 @@
 			</ion-select>
 		</ion-item>
 
-		{#if listInput.businessModel?.includes('other') }
+		{#if companyInput.businessModel?.includes('other') }
 			<ion-item>
 				<ion-input
 					label="Other Business Model"
@@ -385,7 +421,7 @@
 					label-placement="stacked"
 					type="text"
 					placeholder="enter text"
-					value={ textInput.otherBusinessModel }
+					value={ companyInput.otherBusinessModel }
 					on:ionInput={ handleTextInput }
 				></ion-input>
 			</ion-item>
@@ -397,7 +433,7 @@
 			<ion-label>Feature Set</ion-label>
 		</ion-item-divider>
 
-		{#each listInput.featureSet ?? [] as feature, index }
+		{#each companyInput.featureSet ?? [] as feature, index }
 			<ion-item>
 				<ion-input
 					aria-label="feature"
@@ -428,7 +464,7 @@
 		</ion-item-divider>
 
 		<ion-item>
-			<ChunkyLabel>Aggregate Score: { parseAggregateFounderScore(founderQualityInput) }</ChunkyLabel>
+			<ChunkyLabel>Aggregate Score: { companyInput.founderQuality?.aggregateScore ?? 0 }</ChunkyLabel>
 		</ion-item>
 
 		{#each objectEntries(founderQualityOptionsMap) as [ key, value ] }
@@ -437,7 +473,7 @@
 			<ion-item class="range-item">
 				<ion-label>
 					<div class="range-header">
-						<ChunkyLabel>{ key }: { founderQualityInput[ key ] ?? 0 }</ChunkyLabel>
+						<ChunkyLabel>{ key }: { companyInput.founderQuality?.[ key ] ?? 0 }</ChunkyLabel>
 
 						<ion-button
 							{ id }
@@ -461,7 +497,7 @@
 						aria-label={ key }
 						min={ -2 }
 						max={ 2 }
-						value={ founderQualityInput[ key ] ?? 0 }
+						value={ companyInput.founderQuality?.[ key ] ?? 0 }
 						ticks={ false }
 						snaps={ true }
 						on:ionInput={ handleRangeInput }

@@ -101,6 +101,8 @@
 			<ChunkyLabel>{ $current.companyId }</ChunkyLabel>
 		</ion-item>
 
+		<ion-progress-bar value={ $current.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+
 		<ion-list>
 			<ion-item>
 				<ion-label>

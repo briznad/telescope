@@ -68,7 +68,10 @@
 
 
 {#if $current }
-	<ion-header translucent={ true }>
+	<ion-header
+		class="fixed-header"
+		translucent={ true }
+	>
 		<ion-toolbar>
 			<ion-buttons
 				slot="start"
@@ -134,6 +137,8 @@
 			<ChunkyLabel>{ $id }</ChunkyLabel>
 		</ion-item>
 
+		<ion-progress-bar value={ $current.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+
 		<ion-list>
 			<ion-item>
 				<ion-label>
@@ -188,10 +193,12 @@
 					<ion-label>
 						<p>Founder Quality</p>
 
-						<h2 class="aggregate-score">aggregate score: { $current.founderQuality?.aggregateScore ?? 0 }</h2>
+						<h2>aggregate score: { $current.founderQuality?.aggregateScore ?? 0 }</h2>
+
+						<h2>completeness score: { $current.founderQuality?.optionalCompletenessScore ?? 0 }</h2>
 
 						{#each Object.entries($current.founderQuality ?? {}) as [ key, value ] }
-							{#if key !== 'aggregateScore' }
+							{#if !['aggregateScore', 'optionalCompletenessScore'].includes(key) }
 								<h3>{ key }: { value }</h3>
 							{/if}
 						{/each}

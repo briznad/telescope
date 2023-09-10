@@ -105,6 +105,8 @@
 		<ion-item>
 			<h2>Scoreboard</h2>
 		</ion-item>
+
+		<ion-progress-bar value={ 0.666 }></ion-progress-bar>
 	</ion-item-group>
 
 	<ion-item-group>

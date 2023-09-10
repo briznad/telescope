@@ -1,7 +1,7 @@
-import type { DBItem } from '$types/db-item';
+import type { CompanyOrReport } from '$types/company-or-report';
 
 
-export interface Report extends DBItem {
+export interface Report extends CompanyOrReport {
 	companyId                : string;
 	companyName              : string;
 	revenue?                 : DollarTerm;

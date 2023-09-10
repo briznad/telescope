@@ -2,16 +2,14 @@
 	lang="ts"
 	context="module"
 >
+	import type { BooleanMap } from 'briznads-helpers';
+
 	import type { PageData } from './$types';
 
 	import type { Report } from '$types/report';
 	import type { Company } from '$types/company';
 
-	import { onMount } from 'svelte';
-
-	import { informationCircleOutline, add, business } from 'ionicons/icons';
-
-	import { objectEntries, sleep } from 'briznads-helpers';
+	import { objectEntries, roundToDecimals } from 'briznads-helpers';
 
 	import { goto } from '$app/navigation';
 
@@ -23,6 +21,21 @@
 	import { companies } from '$stores/companies';
 
 	import DollarTermInput from '$components/DollarTermInput.svelte';
+
+
+	const optionalPropertiesMap : BooleanMap = {
+		revenue                 : true,
+		cashBurn                : true,
+		grossProfit             : true,
+		grossProfitPercentage   : true,
+		EBIDTA                  : true,
+		cashOnHand              : true,
+		customerAcquisitionCost : true,
+		lifetimeValue           : true,
+		averageRevenuePerUser   : true,
+		customerCount           : true,
+		nextFundraise           : true,
+	};
 </script>
 
 
@@ -38,6 +51,26 @@
 
 	$ : reportInput.companyId   = data.companyId;
 	$ : reportInput.companyName = data.companyName;
+
+	function parseCompletenessScore(reportInput : Partial<Report>) : void {
+		const optionalFilledCount : number = objectEntries(reportInput)
+			.filter(([ key, value ]) => {
+				if (!optionalPropertiesMap[ key ]) {
+					return false;
+				}
+
+				return isValidValue(typeof value === 'object' ? value.value : value);
+			})
+			.length;
+
+		reportInput.optionalCompletenessScore = roundToDecimals(optionalFilledCount / Object.keys(optionalPropertiesMap).length, 5);
+	}
+
+	$ : parseCompletenessScore(reportInput);
+
+	function isValidValue(value : any) : boolean {
+		return !!value || value === 0;
+	}
 
 	let tempCompanyInput : { companyId : string, companyName : string };
 
@@ -127,6 +160,12 @@
 
 
 <style lang="scss">
+	.fixed-header {
+		ion-progress-bar {
+			opacity: var(--opacity-scale);
+		}
+	}
+
 	ion-content {
 		--padding-bottom: 60px;
 	}
@@ -194,7 +233,10 @@
 </style>
 
 
-<ion-header translucent={ true }>
+<ion-header
+	class="fixed-header"
+	translucent={ true }
+>
   <ion-toolbar>
     <ion-title>New Report</ion-title>
 
@@ -221,6 +263,8 @@
 				</ion-button>
 			{/if}
     </ion-buttons>
+
+		<ion-progress-bar value={ reportInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -252,6 +296,8 @@
 					</ion-button>
 				{/if}
       </ion-buttons>
+
+			<ion-progress-bar value={ reportInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
     </ion-toolbar>
   </ion-header>
 

@@ -60,6 +60,11 @@
 </script>
 
 
+<svelte:head>
+	<meta name="theme-color" media="(prefers-color-scheme: light)" content="#45aeeb" />
+</svelte:head>
+
+
 <style lang="scss">
 	:global(h1) {
 		font-weight: 700;

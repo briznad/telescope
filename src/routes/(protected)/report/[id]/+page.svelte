@@ -2,9 +2,7 @@
 	lang="ts"
 	context="module"
 >
-	import type { Report } from '$types/report';
-
-	import { objectEntries, parseDate } from 'briznads-helpers';
+	import { objectEntries, parseDate, roundToDecimals } from 'briznads-helpers';
 
 	import { report } from '$stores/report';
 
@@ -31,7 +29,6 @@
 
 <script lang="ts">
 	const {
-		id,
 		current,
 	} = report;
 </script>
@@ -42,9 +39,13 @@
 		--padding-bottom: 60px;
 	}
 
-	.id-container {
+	.completeness-score-container {
 		--min-height: auto;
 		--padding-bottom: 10px;
+
+		ion-label {
+			margin: 0;
+		}
 	}
 
 	h2 {
@@ -95,13 +96,15 @@
 		</ion-header>
 
 		<ion-item
-			class="id-container"
+			class="completeness-score-container"
 			lines="full"
 		>
-			<ChunkyLabel>{ $current.companyId }</ChunkyLabel>
-		</ion-item>
+			<ion-label>
+				<p>Field Completeness: { roundToDecimals(($current.optionalCompletenessScore ?? 0) * 100, 1) }%</p>
 
-		<ion-progress-bar value={ $current.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+				<ion-progress-bar color="success" value={ $current.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+			</ion-label>
+		</ion-item>
 
 		<ion-list>
 			<ion-item>

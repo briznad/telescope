@@ -264,7 +264,7 @@
 			{/if}
     </ion-buttons>
 
-		<ion-progress-bar value={ reportInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+		<ion-progress-bar color="success" value={ reportInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -297,7 +297,7 @@
 				{/if}
       </ion-buttons>
 
-			<ion-progress-bar value={ reportInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+			<ion-progress-bar color="success" value={ reportInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
     </ion-toolbar>
   </ion-header>
 

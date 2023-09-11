@@ -132,7 +132,7 @@
 
 						<p>{ value.comparativeAdjective === 'equal' ? '' : value.absoluteDifference + '% ' }<strong>{ value.comparativeAdjective }</strong> { value.comparativeAdjective === 'equal' ? 'to' : 'than' } the global average of { value.totalPercentage }%</p>
 
-						<ion-progress-bar value={ value.userDecimal }></ion-progress-bar>
+						<ion-progress-bar color="success" value={ value.userDecimal }></ion-progress-bar>
 					</ion-label>
 				</ion-item>
 			{/if}

@@ -328,7 +328,7 @@
 			>Save</ion-button>
     </ion-buttons>
 
-		<ion-progress-bar value={ companyInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+		<ion-progress-bar color="success" value={ companyInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -359,7 +359,7 @@
 				>Save</ion-button>
       </ion-buttons>
 
-			<ion-progress-bar value={ companyInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
+			<ion-progress-bar color="success" value={ companyInput.optionalCompletenessScore ?? 0 }></ion-progress-bar>
     </ion-toolbar>
   </ion-header>
 

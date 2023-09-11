@@ -13,7 +13,7 @@ Okay, so maybe fun is a stretch when describing data entry. But, informed by my 
 ## How
 This project uses a wide range of technologies and solutions that punch above their weight to build, deploy, host, serve, manage, and analyze. Some of them are SvelteKit, Ionic, Typescript, Google Firestore, Capacitor, Firebase Auth, Google Big Query, Vercel Edge Functions, and many more.
 
-Despite the fact that this was built as an interview project, I approached this as I would a production system. This system could be deployed to a production environment with minimal changes. However, I did have limited time to build, which informed my choices. I selected solutions that aided my ability to create the highest quality system in the shortest time. I'll detail those choices uses the requested prompts:
+Despite the fact that this was built as an interview project, I approached this as I would a production system. This system could be deployed to a production environment with minimal changes. However, I did have limited time to build, which informed my choices. I selected solutions that aided my ability to create the highest quality system in the shortest time. I'll detail those choices using the requested prompts:
 
 ### The systems design [I] use
 

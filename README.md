@@ -63,5 +63,8 @@ Ionic is my preferred UI toolkit, which offers various UI components that can be
 #### User management and authentication - Firebase Authentication
 Security is no joke. Like UI design, it relies on a complicated arrangement of layers to be carefully coordinated, and small mistakes can result in significant negative outcomes. User management is also an essential component of any system, even one as simple as this prototype. Therefore I prefer to offload the heavy lifting of authentication to a cohesive solution like Firebase Auth. Also, as an integrated offering with the rest of the Firebase ecosystem, it plays nice with Firestore. This provides the simplest possible solution to achieve granular security down to row-level auth.
 
+#### Web host - Vercel
+Vercel is a leading provider of managed application hosting services and, like Firebase products, is relentlessly focused on the needs of application developers. This provides the tools of an efficient, reliable ops system without an ops team. Vercel integrates with Github - my preferred DVCS provider - and SvelteKit provides a default adapter for Vercel. These 2 integrations combined means that deploying is as simple as a Git push, and both the frontend and API backend of my app will be served via globally-distributed edge compute servers.
+
 ## Etymology
 Telescope is named for James Webb - no, not the [second Administrator of NASA](https://en.wikipedia.org/wiki/James_E._Webb) - we're talking about [the Australian competitive eater who can take down more chicken wings in 12 minutes than Joey Chestnut](https://youtu.be/7dyKpqLxJD4). He seemed like a fitting inspiration given that Telescope is all about efficient ingestion.

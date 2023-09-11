@@ -50,6 +50,10 @@
 		padding: 10px 20px;
 	}
 
+	ion-card {
+		max-width: 600px;
+	}
+
 	ion-card-header {
 		flex-direction: column;
 		align-items: center;

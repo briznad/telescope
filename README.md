@@ -25,7 +25,7 @@ Below are some of the pieces that I've utilized for this project.
 SvelteKit is a full-featured web development framework and development environment that can build modular web components with well-sorted state management and reactivity. Some of the things it can do would be similar to React, React Router, and Redux. However, it also allows building your backend architecture along with your frontend.
 
 #### Database - Google Firestore
-[Google’s Firestore is a NoSQL serverless database with real-time notification capability, and together with the Firebase ecosystem it greatly simplifies common app development challenges while letting the application developer focus primarily on their business logic and user experience.](https://research.google/pubs/pub52292/)
+"[Google’s Firestore is a NoSQL serverless database with real-time notification capability, and together with the Firebase ecosystem it greatly simplifies common app development challenges while letting the application developer focus primarily on their business logic and user experience.](https://research.google/pubs/pub52292/)"
 
 #### UI toolkit - Ionic
 Ionic is an open source UI toolkit for building performant, high-quality web apps using web technologies.

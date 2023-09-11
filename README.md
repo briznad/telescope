@@ -26,6 +26,9 @@ SvelteKit is a full-featured web development framework and development environme
 #### UI toolkit - Ionic
 Ionic is an open source UI toolkit for building performant, high-quality web apps using web technologies.
 
+#### User management and authentication - Firebase Authentication
+Firebase Authentication makes building secure authentication systems easy, while improving the sign-in and onboarding experience for end users. It provides an end-to-end identity solution, supporting email and password accounts, phone auth, as well as 3rd-party federated authentication via Google, Apple, Twitter, Facebook, GitHub, etc.
+
 #### Web host - Vercel
 Hosts and serves the static assets of the app, as well as the API endpoints, using a globally distributed edge compute model that provides the fastest possible experience for end users.
 

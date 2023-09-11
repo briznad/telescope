@@ -43,6 +43,7 @@
 
 	/* Theme variables */
 	import '../theme/variables.css';
+	import '../theme/global.css';
 
 	import { ga } from '$services/ga';
 </script>

@@ -4,21 +4,33 @@
 >
 	import { add } from 'ionicons/icons';
 
+	import { objectEntries } from 'briznads-helpers';
+
 	import { HEK } from '$utilities/helper';
 
-	import { authentication } from '$services/authentication';
+	import { authentication } from '$services/authnz';
 
 	import { user } from '$stores/user';
 	import { companies } from '$stores/companies';
 	import { reports } from '$stores/reports';
+	import { aggregate } from '$stores/aggregate';
 
 	import CreatedOrUpdated from '$components/CreatedOrUpdated.svelte';
+	import ChunkyLabel from '$components/ChunkyLabel.svelte';
+
+
+	const scoreboardOrder : string[] = [
+		'report',
+		'company',
+		'founder quality',
+	];
 </script>
 
 
 <script lang="ts">
-	const recentCompanies = companies.recent;
-	const recentReports   = reports.recent;
+	const recentCompanies  = companies.recent;
+	const recentReports    = reports.recent;
+	const completenessData = aggregate.completeness;
 
 	let userPopoverElement : HTMLIonPopoverElement;
 
@@ -49,6 +61,10 @@
 			position: relative;
 			top: 4px;
 		}
+	}
+
+	ion-progress-bar {
+		margin-top: 8px;
 	}
 </style>
 
@@ -106,7 +122,21 @@
 			<h2>Scoreboard</h2>
 		</ion-item>
 
-		<ion-progress-bar value={ 0.666 }></ion-progress-bar>
+		{#each scoreboardOrder as key }
+			{ @const value = $completenessData[key] }
+
+			{#if value != undefined }
+				<ion-item>
+					<ion-label>
+						<ChunkyLabel>{ key } Fields Completion: { value.userPercentage }%</ChunkyLabel>
+
+						<p>{ value.comparativeAdjective === 'equal' ? '' : value.absoluteDifference + '% ' }<strong>{ value.comparativeAdjective }</strong> { value.comparativeAdjective === 'equal' ? 'to' : 'than' } the global average of { value.totalPercentage }%</p>
+
+						<ion-progress-bar value={ value.userDecimal }></ion-progress-bar>
+					</ion-label>
+				</ion-item>
+			{/if}
+		{/each}
 	</ion-item-group>
 
 	<ion-item-group>

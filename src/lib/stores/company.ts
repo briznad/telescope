@@ -10,7 +10,7 @@ import { firestore } from '$services/firestore';
 class CompanyStore {
 	public id : Writable<string>;
 
-	public current : Readable<null | Company>;
+	public current : Readable<undefined | Company>;
 
 
 	constructor() {
@@ -19,20 +19,20 @@ class CompanyStore {
 	}
 
 
-	private initCurrent() : Readable<null | Company> {
+	private initCurrent() : Readable<undefined | Company> {
 		return derived(
 			this.id,
 			(
 				$id : string,
 				set : (value : any) => void,
 			) : Unsubscriber => {
-				const unsubscribe = firestore.getCompanyReactive($id, (company : null | Company) => {
+				const unsubscribe = firestore.getCompanyReactive($id, (company : undefined | Company) => {
 					set(company);
 				});
 
 				return () => unsubscribe();
 			},
-			null,
+			undefined,
 		);
 	}
 }

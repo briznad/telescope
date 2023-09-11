@@ -2,6 +2,8 @@
 	lang="ts"
 	context="module"
 >
+	import type { User } from '$types/user';
+
 	import { onDestroy } from 'svelte';
 
 	import { sleep } from 'briznads-helpers';
@@ -25,8 +27,8 @@
 	async function authenticationCheck() {
 		await sleep(2000);
 
-		userUnsubscribe = user.subscribe(async (value) => {
-			if (value === null) {
+		userUnsubscribe = user.subscribe(async (value : User | undefined) => {
+			if (!value?.id) {
 				console.info('User is not authenticated');
 
 				goto('/');

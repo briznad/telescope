@@ -1,4 +1,4 @@
-import { authentication } from '$services/authentication';
+import { authentication } from '$services/authnz';
 
 
 export const ssr = false;

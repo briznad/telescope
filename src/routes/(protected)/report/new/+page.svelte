@@ -416,7 +416,7 @@
 
 		<ion-item-group>
 			<ion-item-divider>
-				<ion-label>Customer Acquisition Cost</ion-label>
+				<ion-label>Customer Acquisition Cost <ion-text color="primary">•</ion-text></ion-label>
 			</ion-item-divider>
 
 			<ion-item>
@@ -504,6 +504,7 @@
 						presentation="month-year"
 						min="2023"
 						max="2099"
+						value={ reportInput.nextFundraise }
 						on:ionChange={ handleTextInput }
 					></ion-datetime>
 				</ion-modal>

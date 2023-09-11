@@ -88,15 +88,15 @@
 			return returnedUser;
 		}
 
-		getCompany(id : string) : Promise<Company | null> {
+		getCompany(id : string) : Promise<Company | undefined> {
 			return this.getCompanyOrReport('company', id);
 		}
 
-		getReport(id : string) : Promise<Report | null> {
+		getReport(id : string) : Promise<Report | undefined> {
 			return this.getCompanyOrReport('report', id);
 		}
 
-		private async getCompanyOrReport(type : 'user' | 'company' | 'report', id : string) : Promise<User | Company | Report | null> {
+		private async getCompanyOrReport(type : 'user' | 'company' | 'report', id : string) : Promise<User | Company | Report | undefined> {
 			const docRef = doc(this.db, this.getCollectionName(type), id);
 
 			let docSnapshot : DocumentSnapshot;
@@ -106,32 +106,32 @@
 			} catch (error) {
 				console.error(`Something went wrong when attempting to read ${ type } with id: ${ id }`, error);
 
-				return null;
+				return undefined;
 			}
 
 			if (docSnapshot.exists()) {
 				return docSnapshot.data() as Company | Report;
 			} else {
 				// no item exists with the provided id
-				return null;
+				return undefined;
 			}
 		}
 
-		getCompanyReactive(id : string, callback : (company : null | Company) => void) : Unsubscribe {
+		getCompanyReactive(id : string, callback : (company : undefined | Company) => void) : Unsubscribe {
 			return this.getCompanyOrReportReactive('company', id, callback);
 		}
 
-		getReportReactive(id : string, callback : (report : null | Report) => void) : Unsubscribe {
+		getReportReactive(id : string, callback : (report : undefined | Report) => void) : Unsubscribe {
 			return this.getCompanyOrReportReactive('report', id, callback);
 		}
 
-		private getCompanyOrReportReactive(type : 'user' | 'company' | 'report', id : string, callback : (data : null | User | Company | Report) => void) : Unsubscribe {
+		private getCompanyOrReportReactive(type : 'user' | 'company' | 'report', id : string, callback : (data : undefined | User | Company | Report) => void) : Unsubscribe {
 			const docRef = doc(this.db, this.getCollectionName(type), id);
 
 			return onSnapshot(docRef, (docSnapshot : DocumentSnapshot) : void => {
-				const doc : null | User | Company | Report = docSnapshot.exists()
+				const doc : undefined | User | Company | Report = docSnapshot.exists()
 					? docSnapshot.data() as User | Company | Report
-					: null;
+					: undefined;
 
 				callback(doc);
 			});
@@ -154,7 +154,7 @@
 		private getItemsQuery(type : 'user' | 'company' | 'report', limitDocuments? : number, sortByUpdated = true, byCompanyId? : string) : QueryOrCollectionRef {
 			let queryRef : QueryOrCollectionRef = collection(this.db, this.getCollectionName(type));
 
-			if (limitDocuments != null || sortByUpdated || byCompanyId) {
+			if (limitDocuments != undefined || sortByUpdated || byCompanyId) {
 				const queryParameters : any[] = [];
 
 				if (byCompanyId) {
@@ -165,7 +165,7 @@
 					queryParameters.push(orderBy('updatedAt', 'desc'));
 				}
 
-				if (limitDocuments != null) {
+				if (limitDocuments != undefined) {
 					queryParameters.push(limit(limitDocuments));
 				}
 
@@ -206,15 +206,15 @@
 			});
 		}
 
-		createCompany(userId : string, payload : Partial<Company>) : Promise<Company | null> {
+		createCompany(userId : string, payload : Partial<Company>) : Promise<Company | undefined> {
 			return this.createItem('company', userId, payload);
 		}
 
-		createReport(userId : string, payload : Partial<Report>) : Promise<Report | null> {
+		createReport(userId : string, payload : Partial<Report>) : Promise<Report | undefined> {
 			return this.createItem('report', userId, payload);
 		}
 
-		async createItem(type : 'user' | 'company' | 'report', userId : string, payload : Partial<User | Company | Report>) : Promise<User | Company | Report | null> {
+		async createItem(type : 'user' | 'company' | 'report', userId : string, payload : Partial<User | Company | Report>) : Promise<User | Company | Report | undefined> {
 			const id = createId('lowercase', 8);
 
 			const timestamp = new Date().toISOString();
@@ -235,13 +235,13 @@
 			} catch (error) {
 				console.error(`Something went wrong when attempting to create ${ type }`, error);
 
-				return null;
+				return undefined;
 			}
 
 			return item;
 		}
 
-		updateCompany(id : string, userId : string, payload : Partial<Company>) : Promise<Company | null> {
+		updateCompany(id : string, userId : string, payload : Partial<Company>) : Promise<Company | undefined> {
 			return this.updateItem('company', id, userId, payload);
 		}
 
@@ -271,7 +271,7 @@
 			return onSnapshot(q, (querySnapshot : QuerySnapshot<DocumentData, DocumentData>) => {
 				const items : Report[] = this.getItemsFromSnapshot(querySnapshot);
 
-				callback((items ?? [])[0] ?? null);
+				callback((items ?? [])[0] ?? undefined);
 			});
 		}
 	}

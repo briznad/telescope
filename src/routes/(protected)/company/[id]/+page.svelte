@@ -195,7 +195,7 @@
 
 						<h2>aggregate score: { $current.founderQuality?.aggregateScore ?? 0 }</h2>
 
-						<h2>completeness score: { $current.founderQuality?.optionalCompletenessScore ?? 0 }</h2>
+						<h2>completeness: { ($current.founderQuality?.optionalCompletenessScore ?? 0) * 100 }%</h2>
 
 						{#each Object.entries($current.founderQuality ?? {}) as [ key, value ] }
 							{#if !['aggregateScore', 'optionalCompletenessScore'].includes(key) }

@@ -7,7 +7,7 @@ import { firestore } from '$services/firestore';
 import { writable } from 'svelte/store';
 
 
-export const user : Writable<User | null> = writable(null);
+export const user : Writable<User | undefined> = writable(undefined);
 
 export const users : Writable<User[]> = writable(
 	[],

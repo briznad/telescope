@@ -8,7 +8,7 @@
 
 	import { HEK } from '$utilities/helper';
 
-	import { authentication } from '$services/authentication';
+	import { authentication } from '$services/authnz';
 
 	import { user } from '$stores/user';
 </script>

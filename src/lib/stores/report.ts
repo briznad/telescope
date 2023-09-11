@@ -12,8 +12,8 @@ import { company } from '$stores/company';
 class ReportStore {
 	public id : Writable<string>;
 
-	public current       : Readable<null | Report>;
-	public companyLatest : Readable<null | Report>;
+	public current       : Readable<undefined | Report>;
+	public companyLatest : Readable<undefined | Report>;
 
 
 	constructor() {
@@ -23,37 +23,37 @@ class ReportStore {
 	}
 
 
-	private initCurrent() : Readable<null | Report> {
+	private initCurrent() : Readable<undefined | Report> {
 		return derived(
 			this.id,
 			(
 				$id : string,
 				set : (value : any) => void,
 			) : Unsubscriber => {
-				const unsubscribe = firestore.getReportReactive($id, (report : null | Report) => {
+				const unsubscribe = firestore.getReportReactive($id, (report : undefined | Report) => {
 					set(report);
 				});
 
 				return () => unsubscribe();
 			},
-			null,
+			undefined,
 		);
 	}
 
-	private initCompanyLatest() : Readable<null | Report> {
+	private initCompanyLatest() : Readable<undefined | Report> {
 		return derived(
 			company.id,
 			(
 				$id : string,
 				set : (value : any) => void,
 			) : Unsubscriber => {
-				const unsubscribe = firestore.getLatestCompanyReportReactive($id, (report : null | Report) => {
+				const unsubscribe = firestore.getLatestCompanyReportReactive($id, (report : undefined | Report) => {
 					set(report);
 				});
 
 				return () => unsubscribe();
 			},
-			null,
+			undefined,
 		);
 	}
 }

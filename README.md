@@ -2,7 +2,7 @@
 ## Company data ingester
 
 ## What
-Telescope is an [app](https://telescope.bradmallow.com/), database, and [API](https://telescope.bradmallow.com/api/companies).
+Telescope is an [app](https://telescope.bradmallow.com/), database, [API](https://telescope.bradmallow.com/api/companies), and [data warehouse](https://console.cloud.google.com/bigquery?sq=348985695659:fbede93d91424f3d9c45362c96fc6558).
 
 ## Why
 To facilitate the inputting of company data, which is often exchanged in an unstructured format, into a structured system, allowing it to be used in data modeling.
@@ -46,6 +46,8 @@ SvelteKit also makes it simple to build fully reactive frontends, such that when
 
 #### Database - Google Firestore
 There are a number of features that make Firestore compelling. As a fully managed IaaS offering, Firestore is very easy to start using and requires little consideration of setup or administration. This is important when development resources are constrained, allowing me to concentrate on delivering features. I can also relinquish concerns of scaling, since the managed offering will automatically scale as data and connection needs grow. Firestore also comes with client libraries that facilitate realtime data streaming. Along with the reactivity offered with SvelteKit, this combination makes building very responsive apps much easier and less time consuming. Lastly, the consideration of Firestore as a NoSQL database was key to allow quick work at the onset of a project that would expand and change. This is because Firestore doesn't require defining a fixed schema before the database can be used. When embarking a new project quickly, it can be an impediment to development to spend too much time working in abstractions and data models that will likely need to shift as the concept is refined and iterated on. Firestore is much more flexible in this way. It also learns from usage patterns of how data is queried and will automatically create indexes on data as is necessary.
+
+Beyond the specific details of Firestore as a database, it also benefits from the robust suite of Firebase and GCP integrations. In particular, Firestore can be easily connected to BigQuery. As a result, the modest amount of data in the test project is being replicated in realtime to a system that provides petabyte-scale querying. While overkill in this scenaro, it nonetheless speaks to very relevant and powerful capabilities.
 
 #### UI toolkit - Ionic
 Ionic is my preferred UI toolkit, which offers various UI components that can be mixed and modified in a way that maintains visual cohesiveness and provides well-considered accessible interactions. This is important for an app that relies on extensive use of forms. The ability to tab through and use the keyboard to manipulate the form is crucial for efficient entry, and this is made much easier through Ionic's default UI components. Ionic components also adjust their style to match the user's system, so iPhone and Android users will both experience UI elements that reflect the dominate UI paradigms and customs of their respective systems. Lastly, Ionic also develops Capacitor, a system that allows building native apps using web app technologies. This provides an unparalleled ability to have a single codebase that can be deployed as a mobile or desktop web app, mobile native app, or even desktop native app.
